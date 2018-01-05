@@ -1,6 +1,6 @@
 'use strict';
 
-const user = require('../models/user');
+const user = require('../models/newuserlogin');
 
 exports.phoneverification = (otp, phone, userinfo) => {
 
@@ -54,7 +54,7 @@ exports.phoneverification = (otp, phone, userinfo) => {
                 otp: otp
             }).then((users) => {
                 console.log(users)
-                let userPhone = users[0]._doc.userObject.phone;
+                let userPhone = users[0]._doc.phone;
                 if (userPhone === phone)
                     resolve({
                         status: 202,
