@@ -1,13 +1,13 @@
 'use strict';
 
-const user = require('../models/user');
+const user = require('../models/newuserlogin');
 
-exports.getnewotp = (email,otp) => {
+exports.getnewotp = (phone,otp) => {
 
     return new Promise((resolve, reject) => {
 
         user.findOneAndUpdate({
-            email: email
+            phone: phone
         }, {
             $set: {
                 otp: otp,
@@ -17,7 +17,7 @@ exports.getnewotp = (email,otp) => {
 
             console.log(users)
 
-            resolve({status: 201, message: 'your new otp has been sent successfully to your email and phone'})
+            resolve({status: 201, message: 'your otp has been sent successfully to phone'})
 
         }).catch(err => {
 

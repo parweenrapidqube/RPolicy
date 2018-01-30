@@ -4,11 +4,15 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const userSchema = mongoose.Schema({
+const newUserLoginSchema = mongoose.Schema({
 
-
+    phone: {
+        type: Number,
+        unique: true
+    },
     created_at: String,
-    userObject: Object
+    otp: Number,
+    count: Number
 
 });
 
@@ -22,4 +26,4 @@ mongoose.connect('mongodb://rpqb:rpqb123@ds131583.mlab.com:31583/digitalid', {
 
 
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('newuser', newUserLoginSchema);

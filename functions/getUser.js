@@ -1,13 +1,13 @@
 'use strict';
 
-const user = require('../models/user');
+const user = require('../models/newuserlogin');
 
-exports.getUser = (email) => {
+exports.getUser = (phone) => {
 
     return new Promise((resolve, reject) => {
 
         user
-            .find({email:email}).then((users) => {
+            .find({phone:phone}).then((users) => {
 
             console.log(users)
 

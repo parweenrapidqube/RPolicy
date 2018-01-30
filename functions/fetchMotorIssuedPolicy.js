@@ -8,7 +8,9 @@ exports.fetchMotorIssuedPolicy = (userid) => {
 
         policydetails
             .find({rapidID:userid},{
-             'policyObject.policyName':1,
+            'vehicleObject.registrationNo':1,
+            'vehicleObject.model':1,
+            'policyObject.policyName':1,
              'created_at':1,  
              'policyObject.premiumAmount':1,
              'policyObject.sumInsured':1,
@@ -18,10 +20,22 @@ exports.fetchMotorIssuedPolicy = (userid) => {
             )
             .then(policylist => {
                  console.log(policylist)
+                 console.log(Date.parse(policylist[0]._doc.created_at));
+                 var date=new Date(policylist[0]._doc.created_at);
+                 console.log(date)
+                 var year =date.getFullYear();
+                 console.log(year);
+                 var month = date.getMonth();
+                 console.log(month);
+                 var day = date.getDate();
+                 console.log(day);
+                 var expiredDate = new Date(year + 1, month, day).toString();
+                  console.log(expiredDate)
 
                 resolve({
                     status: 201,
-                    policylist: policylist
+                    policylist: policylist,
+                    expireddate:expiredDate
                 })
 
             })

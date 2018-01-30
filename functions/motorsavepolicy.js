@@ -3,26 +3,14 @@
 const motorsavepolicy = require('../models/motorsavepolicy');
 var ObjectId = require('mongodb').ObjectID
 
-exports.motorsavepolicy = (id,_id,status, name, phone, email, regAreaCode, previousPolicyExpiry, registrationYear, carModel, fuelType, carVariant, existingInsurer) => new Promise((resolve, reject) => {
+exports.motorsavepolicy = (id,_id,insuranceObject) => new Promise((resolve, reject) => {
 
     const motorsavePolicy = new motorsavepolicy({
 
         id: id,
-        name: name,
-        phone: phone,
-
-        email: email,
-        regAreaCode: regAreaCode,
-        previousPolicyExpiry: previousPolicyExpiry,
-        registrationYear: registrationYear,
-        carModel: carModel,
-
-        fuelType: fuelType,
-        carVariant: carVariant,
-        existingInsurer: existingInsurer
-       
-    });
-    if (status === "new") {
+        insuranceObject: insuranceObject
+});
+    if (insuranceObject.status === "new") {
         motorsavePolicy
             .save()
             .then(() => resolve({status: 201, message: 'policy saved Sucessfully !', _id: motorsavePolicy._id}))
@@ -37,7 +25,7 @@ exports.motorsavepolicy = (id,_id,status, name, phone, email, regAreaCode, previ
                     reject({status: 500, message: 'Internal Server Error !'});
                 }
             });
-    } else if (status === "update") {
+    } else if (insuranceObject.status === "update") {
 
         motorsavepolicy.update({
             _id: ObjectId(_id)
@@ -45,18 +33,7 @@ exports.motorsavepolicy = (id,_id,status, name, phone, email, regAreaCode, previ
 
             $set: {
         id: id,
-        name: name,
-        phone: phone,
-
-        email: email,
-        regAreaCode: regAreaCode,
-        previousPolicyExpiry: previousPolicyExpiry,
-        registrationYear: registrationYear,
-        carModel: carModel,
-
-        fuelType: fuelType,
-        carVariant: carVariant,
-        existingInsurer: existingInsurer
+        insuranceObject: insuranceObject
             }
         }).then(() => resolve({status: 201, message: 'policy updated and saved Sucessfully !', _id: _id})).catch(err => {
 

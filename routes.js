@@ -20,6 +20,7 @@ const nodemailer = require('nodemailer');
 const config = require('./config/config.json');
 
 const register = require('./functions/register');
+const newlogin = require('./functions/newlogin');
 const login = require('./functions/login');
 const updateprofile = require('./functions/updateprofile');
 const verifyemail = require('./functions/emailverification');
@@ -34,6 +35,7 @@ const userfullname = require('./functions/userfullname');
 const User = require('./functions/getUser');
 
 const motorsavepolicy = require('./functions/motorsavepolicy');
+const addPolicy = require('./functions/addPolicy');
 const motorfetchSavePolicy = require('./functions/motorfetchSavePolicy');
 const motordeletesavepolicy = require('./functions/motordeletesavepolicy');
 const policydetails = require('./functions/policydetails');
@@ -78,35 +80,48 @@ module.exports = router => {
 
     router.post('/registerUser', cors(), (req, res) => {
 
-        const email = req.body.email;
-        console.log(email);
-        var emailtosend = email;
-        console.log(emailtosend);
-        const password = crypto
-        .createHash('sha256')
-        .update(req.body.password)
-        .digest('base64');
-        console.log(password);
-        const rapidID = crypto
-            .createHash('sha256')
-            .update(email)
-            .digest('base64');
-        console.log(rapidID);
+
         const userObject = req.body.userObject;
         console.log(userObject);
-        var phonetosend = userObject.phone;
-        const usertype = req.body.usertype;
-        console.log(usertype);
+        
+
+
+            register
+                .registerUser(userObject)
+                .then(result => {
+
+                   
+                    res
+                        .status(result.status)
+                        .json({
+                            message: result.message
+                        
+                        });
+
+                })
+                .catch(err => res.status(err.status).json({
+                    message: err.message
+                }).json({
+                    status: err.status
+                }));
+        
+    });
+
+
+    router.post('/newLogin', cors(), (req, res) => {
+
+
+        var phonetosend = req.body.phone;
+
         var otp = "";
         var possible = "0123456789";
         for (var i = 0; i < 4; i++)
             otp += possible.charAt(Math.floor(Math.random() * possible.length));
         console.log("otp" + otp);
-        var remoteHost = "apidigi.herokuapp.com";
-        console.log(remoteHost);
-        var encodedMail = new Buffer(req.body.email).toString('base64');
 
-        if (!email || !password || !usertype) {
+        var otptosend = 'your otp is ' + otp;
+
+        if (!phonetosend) {
 
             res
                 .status(400)
@@ -115,25 +130,17 @@ module.exports = router => {
                 });
 
         } else {
-
-            register
-                .registerUser(email, password, rapidID, userObject, usertype, otp, encodedMail)
+            User
+            .getUser(phonetosend)
+            .then(result => {
+                if (result.usr.length == 0) {
+                   
+            newlogin
+                .newlogin(phonetosend, otp)
                 .then(result => {
 
-                    var link = "https://" + remoteHost + "/email/verify?mail=" + encodedMail + "&email=" + email;
 
-                    var otptosend = 'your otp is ' + otp;
-                    var mailOptions = {
-                        transport: transporter,
-                        from: '"Marin Service"<vikram.viswanathan@rapidqube.com>',
-                        to: emailtosend,
-                        subject: 'Please confirm your Email account',
 
-                        html: "Hello,<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
-                    };
-                    transporter.sendMail(mailOptions, (error, info) => {
-                        if (error) {}
-                    });
                     nexmo
                         .message
                         .sendSms('919768135452', phonetosend, otptosend, {
@@ -147,7 +154,6 @@ module.exports = router => {
                         .status(result.status)
                         .json({
                             message: result.message,
-                            email: email,
                             phone: phonetosend
                         });
 
@@ -157,17 +163,36 @@ module.exports = router => {
                 }).json({
                     status: err.status
                 }));
+        }else{
+
+            getnewotp
+            .getnewotp(phonetosend, otp)
+            .then(result => {
+                res
+                    .status(result.status)
+                    .json({
+                        message: result.message
+                    });
+            })
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
         }
+    
+    });
+    }
     });
 
-    router.post('/login', cors(), (req, res) => {
+
+
+router.post('/login', cors(), (req, res) => {
 
         const email = req.body.email;
 
         const password = crypto
-        .createHash('sha256')
-        .update(req.body.password)
-        .digest('base64');
+            .createHash('sha256')
+            .update(req.body.password)
+            .digest('base64');
 
         if (!email) {
 
@@ -398,16 +423,22 @@ module.exports = router => {
     });
 
     router.post("/user/phoneverification", cors(), (req, res) => {
-        const email = req.body.email;
-        const phone = req.body.phone;
+
+        const phone = parseInt(req.body.phone);
         var otp = req.body.otp;
         const userinfo = req.body.user;
         console.log(otp);
         console.log(phone);
         console.log(userinfo);
         User
-            .getUser(email)
+            .getUser(phone)
             .then(result => {
+                if (result.usr.length == 0) {
+                    res.send({
+                        status: 401,
+                        message: 'user does not exist !'
+                    });
+                } else {
                 var minutes1 = new Date(result.usr[0]._doc.created_at).getMinutes();
                 console.log("minutes1" + minutes1);
                 var minutes2 = new Date().getMinutes();
@@ -422,20 +453,21 @@ module.exports = router => {
                     verifyphone
                         .phoneverification(otp, phone, userinfo)
                         .then(result => {
-                            var status = result.usr.status
+
                             if (result.status === 202) {
+
+                                const token = jwt.sign(result, config.secret, {
+                                    expiresIn: 60000
+                                })
+
                                 res
                                     .status(result.status)
                                     .json({
-                                        message: result.message
+                                        message: result.message,
+                                        token: token
+
                                     });
-                            } else if (status.length == 2) {
-                                res
-                                    .status(result.status)
-                                    .json({
-                                        message: "registration successful",
-                                        status: true
-                                    })
+                               
                             } else {
 
                                 if (result.status === 404) {
@@ -460,7 +492,9 @@ module.exports = router => {
                             message: err.message
                         }));
                 }
+            }
             })
+        
             .catch(err => res.status(err.status).json({
                 message: err.message
             }));
@@ -557,32 +591,12 @@ module.exports = router => {
         var id = getUserId(req)
 
         console.log("id" + id);
-        const _id = (req.body._id);
-        console.log("_id" + _id);
-        var status = req.body.status;
-        console.log("status" + status);
-        var name = req.body.name;
-        console.log("name" + name);
-        const phone = (req.body.phone);
-        console.log("phone" + phone);
-        var email = (req.body.email);
-        console.log("email:" + email);
-        var regAreaCode = (req.body.regAreaCode);
-        console.log("regAreaCode:" + regAreaCode);
-        var previousPolicyExpiry = req.body.previousPolicyExpiry;
-        console.log("previousPolicyExpiry:" + previousPolicyExpiry);
-        var registrationYear = req.body.registrationYear;
-        console.log("registrationYear:" + registrationYear);
-        var carModel = req.body.carModel;
-        console.log("carModel:" + carModel);
-        var fuelType = req.body.fuelType;
-        console.log("fuelType:" + fuelType);
-        var carVariant = req.body.carVariant;
-        console.log("carVariant:" + carVariant);
-        var existingInsurer = req.body.existingInsurer;
-        console.log("existingInsurer:" + existingInsurer);
+        const insuranceObject = (req.body.insuranceObject);
+        console.log("insuranceObject" + JSON.stringify(insuranceObject));
+        const _id=req.body._id
+        
 
-        if (!status || !name || !phone || !email || !regAreaCode || !previousPolicyExpiry || !registrationYear || !carModel || !fuelType || !carVariant || !existingInsurer || !status.trim() || !name.trim() || !phone.trim() || !email.trim() || !regAreaCode.trim() || !previousPolicyExpiry.trim() || !registrationYear.trim() || !carModel.trim() || !fuelType.trim() || !carVariant.trim() || !existingInsurer.trim()) {
+        if (!id || !id.trim()) {
 
             res
                 .status(400)
@@ -594,204 +608,404 @@ module.exports = router => {
         } else {
 
             var policyList;
-
-            if (fuelType == "Petrol" && carVariant == "AC 4 SPEED(796CC)") {
-
+           if(insuranceObject.vehicleType == "Bike"){
+            if(insuranceObject.variant == "F1 149 CC"){
                 policyList = [{
-                    "SrNo":1,
+                    "SrNo": 1,
                     "Policy Name": "Bharati Insurance",
-                    "Premium Amount":"1322",
-                    "IDV":"20,347",
+                    "Premium Amount": "1322",
+                    "IDV": "20,347",
                     "Insured Declared Value": "3,21,402",
                     "NCB": "10%",
                     "Cashless Garage": "Nil",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"Nil",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"N/A",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "Nil",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "N/A",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }, {
-                    "SrNo":2,
+                    "SrNo": 2,
                     "Policy Name": "Ergo Insurance",
-                    "Premium Amount":"1452",
-                    "IDV":"22,647",
+                    "Premium Amount": "1452",
+                    "IDV": "22,647",
                     "Insured Declared Value": "3,17,402",
                     "NCB": "15%",
                     "Cashless Garage": "3 Garages Near You",
-                    "Advance Cash":"3,45,000",
-                    "Tp Premium":"3,45,000",
-                    "Zero Depreciation":"1 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "3,45,000",
+                    "Tp Premium": "3,45,000",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":3,
+                    "SrNo": 3,
                     "Policy Name": "Oriental Insurance",
-                    "Premium Amount":"1682",
-                    "IDV":"21,654",
+                    "Premium Amount": "1682",
+                    "IDV": "21,654",
                     "Insured Declared Value": "3,10,402",
                     "NCB": "20%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,50,000",
-                    "Zero Depreciation":"3 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,50,000",
+                    "Zero Depreciation": "3 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":4,
+                    "SrNo": 4,
                     "Policy Name": "Reliance Life Insurance",
-                    "Premium Amount":"1482",
-                    "IDV":"23,654",
+                    "Premium Amount": "1482",
+                    "IDV": "23,654",
                     "Insured Declared Value": "3,20,402",
                     "NCB": "18%",
                     "Cashless Garage": "3 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,30,500",
-                    "Zero Depreciation":"1 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,30,500",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":5,
+                    "SrNo": 5,
                     "Policy Name": "ICICI Lombard Insurance",
-                    "Premium Amount":"1682",
-                    "IDV":"27,654",
+                    "Premium Amount": "1682",
+                    "IDV": "27,654",
                     "Insured Declared Value": "3,50,602",
                     "NCB": "22%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,45,500",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,45,500",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }, {
-                    "SrNo":6,
+                    "SrNo": 6,
                     "Policy Name": "Reliance Life Insurance",
-                    "Premium Amount":"1542",
-                    "IDV":"25,543",
+                    "Premium Amount": "1542",
+                    "IDV": "25,543",
                     "Insured Declared Value": "3,42,675",
                     "NCB": "19%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,43,450",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,43,450",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }]
 
-            } else if (fuelType == "CNG" && carVariant == "LPG AC") {
+            } else if (insuranceObject.variant == "STD 149 CC") {
+                
+                                policyList = [{
+                                    "SrNo": 1,
+                                    "Policy Name": "Bharati Insurance",
+                                    "Premium Amount": "1322",
+                                    "IDV": "20,347",
+                                    "Insured Declared Value": "3,21,402",
+                                    "NCB": "10%",
+                                    "Cashless Garage": "Nil",
+                                    "Advance Cash": "Nil",
+                                    "Tp Premium": "Nil",
+                                    "Zero Depreciation": "2 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "N/A",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                                }, {
+                                    "SrNo": 2,
+                                    "Policy Name": "Ergo Insurance",
+                                    "Premium Amount": "1452",
+                                    "IDV": "22,647",
+                                    "Insured Declared Value": "3,17,402",
+                                    "NCB": "15%",
+                                    "Cashless Garage": "3 Garages Near You",
+                                    "Advance Cash": "3,45,000",
+                                    "Tp Premium": "3,45,000",
+                                    "Zero Depreciation": "1 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "Nil",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                
+                                }, {
+                                    "SrNo": 3,
+                                    "Policy Name": "Oriental Insurance",
+                                    "Premium Amount": "1682",
+                                    "IDV": "21,654",
+                                    "Insured Declared Value": "3,10,402",
+                                    "NCB": "20%",
+                                    "Cashless Garage": "2 Garages Near You",
+                                    "Advance Cash": "Nil",
+                                    "Tp Premium": "3,50,000",
+                                    "Zero Depreciation": "3 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "Nil",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                
+                                }, {
+                                    "SrNo": 4,
+                                    "Policy Name": "Reliance Life Insurance",
+                                    "Premium Amount": "1482",
+                                    "IDV": "23,654",
+                                    "Insured Declared Value": "3,20,402",
+                                    "NCB": "18%",
+                                    "Cashless Garage": "3 Garages Near You",
+                                    "Advance Cash": "Nil",
+                                    "Tp Premium": "3,30,500",
+                                    "Zero Depreciation": "1 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "Nil",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                
+                                }, {
+                                    "SrNo": 5,
+                                    "Policy Name": "ICICI Lombard Insurance",
+                                    "Premium Amount": "1682",
+                                    "IDV": "27,654",
+                                    "Insured Declared Value": "3,50,602",
+                                    "NCB": "22%",
+                                    "Cashless Garage": "2 Garages Near You",
+                                    "Advance Cash": "Nil",
+                                    "Tp Premium": "3,45,500",
+                                    "Zero Depreciation": "2 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "Nil",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                                }, {
+                                    "SrNo": 6,
+                                    "Policy Name": "Reliance Life Insurance",
+                                    "Premium Amount": "1542",
+                                    "IDV": "25,543",
+                                    "Insured Declared Value": "3,42,675",
+                                    "NCB": "19%",
+                                    "Cashless Garage": "2 Garages Near You",
+                                    "Advance Cash": "Nil",
+                                    "Tp Premium": "3,43,450",
+                                    "Zero Depreciation": "2 Claims Per Year",
+                                    "Already Included Addons": "Nil",
+                                    "Own Damage": "Nil",
+                                    "Owner/Driver PA Cover": "Accessible",
+                                    "Unnamed Pasanger Cover": "N/A"
+                                }]
+                
+                            }
+                            else{
+
+
+                            }
+            }else if (insuranceObject.vehicleType == "Car"){
+            if ( insuranceObject.variant == "AC 4 SPEED(796CC)") {
 
                 policyList = [{
-                    "SrNo":1,
+                    "SrNo": 1,
                     "Policy Name": "Bharati Insurance",
-                    "Premium Amount":"1322",
-                    "IDV":"20,347",
+                    "Premium Amount": "1322",
+                    "IDV": "20,347",
                     "Insured Declared Value": "3,21,402",
                     "NCB": "10%",
                     "Cashless Garage": "Nil",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"Nil",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"N/A",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "Nil",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "N/A",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }, {
-                    "SrNo":2,
+                    "SrNo": 2,
                     "Policy Name": "Ergo Insurance",
-                    "Premium Amount":"1452",
-                    "IDV":"22,647",
+                    "Premium Amount": "1452",
+                    "IDV": "22,647",
                     "Insured Declared Value": "3,17,402",
                     "NCB": "15%",
                     "Cashless Garage": "3 Garages Near You",
-                    "Advance Cash":"3,45,000",
-                    "Tp Premium":"3,45,000",
-                    "Zero Depreciation":"1 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "3,45,000",
+                    "Tp Premium": "3,45,000",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":3,
+                    "SrNo": 3,
                     "Policy Name": "Oriental Insurance",
-                    "Premium Amount":"1682",
-                    "IDV":"21,654",
+                    "Premium Amount": "1682",
+                    "IDV": "21,654",
                     "Insured Declared Value": "3,10,402",
                     "NCB": "20%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,50,000",
-                    "Zero Depreciation":"3 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,50,000",
+                    "Zero Depreciation": "3 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":4,
+                    "SrNo": 4,
                     "Policy Name": "Reliance Life Insurance",
-                    "Premium Amount":"1482",
-                    "IDV":"23,654",
+                    "Premium Amount": "1482",
+                    "IDV": "23,654",
                     "Insured Declared Value": "3,20,402",
                     "NCB": "18%",
                     "Cashless Garage": "3 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,30,500",
-                    "Zero Depreciation":"1 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,30,500",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
 
                 }, {
-                    "SrNo":5,
+                    "SrNo": 5,
                     "Policy Name": "ICICI Lombard Insurance",
-                    "Premium Amount":"1682",
-                    "IDV":"27,654",
+                    "Premium Amount": "1682",
+                    "IDV": "27,654",
                     "Insured Declared Value": "3,50,602",
                     "NCB": "22%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,45,500",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,45,500",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }, {
-                    "SrNo":6,
+                    "SrNo": 6,
                     "Policy Name": "Reliance Life Insurance",
-                    "Premium Amount":"1542",
-                    "IDV":"25,543",
+                    "Premium Amount": "1542",
+                    "IDV": "25,543",
                     "Insured Declared Value": "3,42,675",
                     "NCB": "19%",
                     "Cashless Garage": "2 Garages Near You",
-                    "Advance Cash":"Nil",
-                    "Tp Premium":"3,43,450",
-                    "Zero Depreciation":"2 Claims Per Year",
-                    "Already Included Addons":"Nil",
-                    "Own Damage":"Nil",
-                    "Owner/Driver PA Cover":"Accessible",
-                    "Unnamed Pasanger Cover":"N/A"
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,43,450",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+                }]
+
+            } else if (insuranceObject.variant == "LPG AC") {
+
+                policyList = [{
+                    "SrNo": 1,
+                    "Policy Name": "Bharati Insurance",
+                    "Premium Amount": "1322",
+                    "IDV": "20,347",
+                    "Insured Declared Value": "3,21,402",
+                    "NCB": "10%",
+                    "Cashless Garage": "Nil",
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "Nil",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "N/A",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+                }, {
+                    "SrNo": 2,
+                    "Policy Name": "Ergo Insurance",
+                    "Premium Amount": "1452",
+                    "IDV": "22,647",
+                    "Insured Declared Value": "3,17,402",
+                    "NCB": "15%",
+                    "Cashless Garage": "3 Garages Near You",
+                    "Advance Cash": "3,45,000",
+                    "Tp Premium": "3,45,000",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+
+                }, {
+                    "SrNo": 3,
+                    "Policy Name": "Oriental Insurance",
+                    "Premium Amount": "1682",
+                    "IDV": "21,654",
+                    "Insured Declared Value": "3,10,402",
+                    "NCB": "20%",
+                    "Cashless Garage": "2 Garages Near You",
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,50,000",
+                    "Zero Depreciation": "3 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+
+                }, {
+                    "SrNo": 4,
+                    "Policy Name": "Reliance Life Insurance",
+                    "Premium Amount": "1482",
+                    "IDV": "23,654",
+                    "Insured Declared Value": "3,20,402",
+                    "NCB": "18%",
+                    "Cashless Garage": "3 Garages Near You",
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,30,500",
+                    "Zero Depreciation": "1 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+
+                }, {
+                    "SrNo": 5,
+                    "Policy Name": "ICICI Lombard Insurance",
+                    "Premium Amount": "1682",
+                    "IDV": "27,654",
+                    "Insured Declared Value": "3,50,602",
+                    "NCB": "22%",
+                    "Cashless Garage": "2 Garages Near You",
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,45,500",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
+                }, {
+                    "SrNo": 6,
+                    "Policy Name": "Reliance Life Insurance",
+                    "Premium Amount": "1542",
+                    "IDV": "25,543",
+                    "Insured Declared Value": "3,42,675",
+                    "NCB": "19%",
+                    "Cashless Garage": "2 Garages Near You",
+                    "Advance Cash": "Nil",
+                    "Tp Premium": "3,43,450",
+                    "Zero Depreciation": "2 Claims Per Year",
+                    "Already Included Addons": "Nil",
+                    "Own Damage": "Nil",
+                    "Owner/Driver PA Cover": "Accessible",
+                    "Unnamed Pasanger Cover": "N/A"
                 }]
 
             }
+        }
             motorsavepolicy
-                .motorsavepolicy(id, _id, status, name, phone, email, regAreaCode, previousPolicyExpiry, registrationYear, carModel, fuelType, carVariant, existingInsurer)
+                .motorsavepolicy(id,_id,insuranceObject)
                 .then((result) => {
                     console.log("_id" + result._id)
                     res
@@ -860,13 +1074,18 @@ module.exports = router => {
         console.log(transaction)
         var policy = transaction.policydetails;
         var vehicle = transaction.vehicledetails;
-    
+
         var policyNumber = "";
         var possible = "01234567891011121314151617181920213031404151523548854547585474654987878";
         for (var i = 0; i < 10; i++)
             policyNumber += possible.charAt(Math.floor(Math.random() * possible.length));
 
-        var object={"from":policy.name,"to":policy.companyName,"policyName":policy.policyName,"premiumPayment":policy.premiumPayment}
+        var object = {
+            "from": policy.name,
+            "to": policy.companyName,
+            "policyName": policy.policyName,
+            "premiumPayment": policy.premiumPayment
+        }
         // object = function(policy, vehicle) {
         //     var record = {};
 
@@ -886,7 +1105,7 @@ module.exports = router => {
         var transactionString = JSON.stringify(object)
         console.log(transactionString)
 
-        
+
 
         var firstMethod = function() {
             var promise = new Promise(function(resolve, reject) {
@@ -927,7 +1146,7 @@ module.exports = router => {
         var thirdMethod = function() {
 
             savetransaction
-                .savetransaction(policyNumber,transactionString)
+                .savetransaction(policyNumber, transactionString)
                 .then((result) => {
                     if (result !== null && result !== '') {
                         var mailOptions = {
@@ -966,10 +1185,10 @@ module.exports = router => {
 
     });
 
-    router.get("/motorfetchissuedpolicy", (req, res) => {
+    router.post("/addPolicy", (req, res) => {
         const userid = getUserId(req)
         console.log(userid);
-        var issuedPolicies = [];
+        const addPolicyObject=req.body.addPolicyObject;
 
         if (!userid || !userid.trim()) {
             // the if statement checks if any of the above paramenters are null or not..if
@@ -982,26 +1201,14 @@ module.exports = router => {
 
         } else {
 
-            fetchMotorIssuedPolicy
-                .fetchMotorIssuedPolicy(userid)
+            addPolicy
+                .addPolicy(userid,addPolicyObject)
                 .then(function(result) {
                     console.log(result)
-                    for (let i = 0; i < result.policylist.length; i++) {
 
-                        issuedPolicies.push({
-                            "policyName": result.policylist[i].policyObject.policyName,
-                            "issuedDate": result.policylist[i].created_at,
-                            "premiumAmount": parseInt(result.policylist[i].policyObject.premiumAmount),
-
-                            "insuredAmount": parseInt(result.policylist[i].policyObject.sumInsured),
-                            "policyHolderName": result.policylist[i].policyObject.name,
-                            "policyNumber": result.policylist[i].policyNumber
-
-                        });
-                    }
                     return res.json({
                         "status": true,
-                        "issuedPolicies": issuedPolicies
+                        "message":result.message 
                     });
                 })
                 .catch(err => res.status(err.status).json({
@@ -1440,7 +1647,7 @@ module.exports = router => {
             firstMethod().then(secondMethod);
         }
 
-     
+
 
     });
 
@@ -1618,7 +1825,7 @@ module.exports = router => {
             };
             firstMethod().then(secondMethod);
         }
-        
+
 
     });
 
@@ -1728,7 +1935,7 @@ module.exports = router => {
                 .then(thirdMethod);
         }
 
-    
+
     });
 
 
@@ -1818,7 +2025,7 @@ module.exports = router => {
             };
             firstMethod().then(secondMethod);
         }
-    
+
     });
 
     router.get('/claim/UserClaims', function(req, res) {
@@ -2285,7 +2492,7 @@ module.exports = router => {
         if (token) {
             try {
                 var decoded = jwt.verify(token, config.secret);
-                return decoded.users[0].rapidID
+                return decoded.usr[0]._id
             } catch (err) {
                 return false;
             }

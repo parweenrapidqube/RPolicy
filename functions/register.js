@@ -5,24 +5,18 @@ const user = require('../models/user');
 const users = 'risabh.s';
 
 
-exports.registerUser = (email, password, rapidID, userObject, usertype, otp, encodedMail) => new Promise((resolve, reject) => {
+exports.registerUser = (userObject) => new Promise((resolve, reject) => {
 
     const newUser = new user({
 
-        email: email,
-        password: password,
-        rapidID: rapidID,
+      
         userObject: userObject,
-        usertype: usertype,
-        status: [],
-        otp: otp,
-        encodedMail: encodedMail,
-        created_at: new Date(),
-        count:0
+        created_at: new Date()
+       
     });
     newUser
         .save()
-        .then(() => resolve({status: 201, message: 'Please verify your emailid and phone no'}))
+        .then(() => resolve({status: 201, message: 'User Registered successfully!'}))
         .catch(err => {
 
             if (err.code == 11000) {
