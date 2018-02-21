@@ -45,7 +45,12 @@ const readRequest = require('./functions/readRequest');
 const readIndex = require('./functions/readIndex');
 const readAllRequest = require('./functions/readAllRequest');
 const updatetransaction = require('./functions/updatetransaction');
-
+const brandnewupdatevehical = require('./functions/brandnewupdatevehical');
+const calculatepremium = require('./functions/calculatepremium');
+const gproposal = require('./functions/gproposal');
+const calculatecarpremium = require('./functions/calculatecarpremium');
+const updatevehicalcardetails = require('./functions/updatevehicaldetails');
+const gproposalcar = require('./functions/gproposalcar');
 const notifyClaim = require('./functions/notifyClaim');
 const createClaim = require('./functions/createClaim');
 const rejectClaim = require('./functions/rejectClaim');
@@ -1236,6 +1241,216 @@ module.exports = router => {
             .then(secondMethod)
             .then(thirdMethod);
 
+    });
+
+    router.post('/brandnewupdatevehical', (req, res) => {
+
+        const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(updatevehical,"brandnewupdatevehical")
+      
+        
+        
+    
+         if (!updatevehical) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+        brandnewupdatevehical.brandnewupdatevehical(updatevehical)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });
+
+    router.post('/calculatepremium', (req, res) => {
+
+        const premiumrequest = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(premiumrequest,"premiumrequest")
+      
+        
+        
+    
+         if (!premiumrequest) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+        calculatepremium.calculatepremium(premiumrequest)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });   
+
+    router.post('/gproposalrequest', (req, res) => {
+
+        const proposalrequest = req.body.GPROPOSALREQUEST;
+       
+      
+       console.log(proposalrequest,"proposalrequest")
+      
+        
+        
+    
+         if (!proposalrequest) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+            gproposal.gproposal(proposalrequest)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });
+
+    router.post('/calculatecarpremium', (req, res) => {
+
+        const calculatepremium = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(calculatepremium,"calculatepremium")
+      
+        
+        
+    
+         if (!calculatepremium) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+            calculatecarpremium.calculatecarpremium(calculatepremium)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });  
+    
+    router.post('/updatevehicalcardetails', (req, res) => {
+
+        const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(updatevehical,"updatevehical")
+      
+        
+        
+    
+         if (!updatevehical) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+            updatevehicalcardetails.updatevehical(updatevehical)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });
+    
+    router.post('/gproposalcar', (req, res) => {
+
+        const gpproposalcar = req.body.GPROPOSALREQUEST;
+       
+      
+       console.log(gpproposalcar,"gpproposalcar")
+      
+        
+        
+    
+         if (!gpproposalcar) {
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+            gproposalcar.gpcar(gpproposalcar)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
     });
 
     router.post("/addPolicy", (req, res) => {

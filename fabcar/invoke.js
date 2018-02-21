@@ -1,8 +1,8 @@
 let multichain = require("multichain-node")({
-    port: 2776,
+    port: 9252,
     host: '127.0.0.1',
     user: "multichainrpc",
-    pass: "AUXFusLeT9C7jdbPxBDNvNw6d9E4AUbiedkvPf7heXMy"
+    pass: "Axh1jhvBukXTXLAr8aVJzG829JFUZDrvptvqkoYkWyZd"        
 });
 
 
@@ -11,9 +11,11 @@ function savetransaction(params) {
     return new Promise((resolve) => {
         var response;
 
-    var TransactionDetails = params.TransactionDetails.transactionString;
-    var policyNumber=params.TransactionDetails.policyNumber;
-    console.log("TransactionDetails",TransactionDetails)
+      var TransactionDetails = params.Transactiondetails.data;
+      var policyNumber= params.Transactiondetails.key;
+    console.log("TransactionDetails",params.Transactiondetails.data)
+    console.log("TransactionDetailsssss",params.Transactiondetails.key)
+
     var hex = '';
     for(var i=0;i<TransactionDetails.length;i++) {
         hex += ''+TransactionDetails.charCodeAt(i).toString(16);
