@@ -39,7 +39,14 @@ function(error, response, body){
     var json = parser.toJson(body);
     var json1 = JSON.parse(json)
     var data =  JSON.stringify(json1)
-  //  console.log("mydatadad",JSON.stringify(json1.PREMIUMDETAILS.Status.StatusCode))
+    var status = JSON.stringify(json1.PREMIUMDETAILS.Status.StatusCode)
+   //console.log("mydatadad",JSON.stringify(json1))
+   console.log("json",json1)
+   //var abc  =  JSON.stringify(json1.PREMIUMDETAILS.Status.Message)
+   //console.log("abc",abc)
+   //if (abc === "Vehicle Additional details updation success" ){
+    
+    if (status === '"S-0005"'){
     var key  =  JSON.stringify(json1.PREMIUMDETAILS.DATA.QUOTE_ID)
     console.log("to json -> %s", JSON.stringify(json1));
     const transactiondetails = ({
@@ -49,12 +56,26 @@ function(error, response, body){
     bcSdk.savetransaction({
         Transactiondetails:transactiondetails   
          })
-.then(() => resolve({
-    status: 201,
-    message:"Success",
-    Response:json 
-}))
+         return resolve({
+            status: 201,
+            message:"Success",
+            Response:json 
+        })
 
+    }else{
+        return  resolve({
+            status: 400,
+            message:json1.PREMIUMDETAILS.Status.Message,
+            Response:json
+            
+        })
+    }
+
+//    }else{
+//     console.log("rahul")
+// }
+
+   
 
 }
 

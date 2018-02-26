@@ -39,8 +39,10 @@ function(error, response, body){
     var json = parser.toJson(body);
     var json1 = JSON.parse(json)
     var data =  JSON.stringify(json1)
-    var key  =  JSON.stringify(json1.PREMIUMDETAILS.DATA.QUOTE_ID)
+    var status = JSON.stringify(json1.PREMIUMDETAILS.Status.StatusCode)
     console.log("to json -> %s", JSON.stringify(json1));
+    if (status === '"S-0002"'){
+    var key  =  JSON.stringify(json1.PREMIUMDETAILS.DATA.QUOTE_ID)
     const transactiondetails = ({
         data: data,
         key:key
@@ -53,9 +55,18 @@ return  resolve({
     message:"Success",
     Response:json
 })
+
+} else {
+    return  resolve({
+        status: 400,
+        message:json1.PREMIUMDETAILS.Status.Message,
+        Response:json
+        
+    })
+    
 }
 
-
+}
 
 );
 })
