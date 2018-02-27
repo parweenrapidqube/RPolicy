@@ -62,8 +62,8 @@ const settleClaim = require('./functions/settleClaim');
 const fetchClaimlist = require('./functions/fetchClaimlist');
 
 const nexmo = new Nexmo({
-    apiKey: 'f538dd31',
-    apiSecret: '903787c18f0cca8e'
+    apiKey: '14a0d539',
+    apiSecret: 'Jx5GoH9PJzLQfoop'
 });
 
 // connection to email API
@@ -175,7 +175,8 @@ module.exports = router => {
                 res
                     .status(result.status)
                     .json({
-                        message: result.message
+                        message: result.message,
+                        otp:otp
                     });
             })
             .catch(err => res.status(err.status).json({
@@ -231,7 +232,7 @@ module.exports = router => {
                         .status(result.status)
                         .json({
                             message: result.message,
-                            phone: phonetosend
+                            otp: result.otp
                         });
 
                 })

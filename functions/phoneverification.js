@@ -16,8 +16,9 @@ exports.phoneverification = (otp, phone, userinfo) => {
             }, {
                 new: true
             }).then((users) => {
-                console.log(users)
-                let userPhone = users._doc.userObject.phone;
+                console.log(users.phone)
+                var userPhone = users.phone;
+             //   console.log(users._doc.userObject.phone,"userphone")
                 if (userPhone === phone)
                     resolve({
                         status: 201,
