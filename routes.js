@@ -17,6 +17,18 @@ var cloudinary = require('cloudinary').v2;
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 const nodemailer = require('nodemailer');
+var express = require('express');
+var router = express.Router();
+const log4js = require('./log4js-node/lib/log4js');
+log4js.configure({
+    appenders: { readypolicy: { type: 'file', filename: 'readypolicy.log' } },
+    categories: { default: { appenders: ['readypolicy'], level: 'error' } }
+  });
+
+const logger = log4js.getLogger('readypolicy');
+
+
+  
 const config = require('./config/config.json');
 
 const register = require('./functions/register');
@@ -62,8 +74,8 @@ const settleClaim = require('./functions/settleClaim');
 const fetchClaimlist = require('./functions/fetchClaimlist');
 
 const nexmo = new Nexmo({
-    apiKey: '14a0d539',
-    apiSecret: 'Jx5GoH9PJzLQfoop'
+    apiKey: 'c7ae10d1',
+    apiSecret: '5d6766133225cd92'
 });
 
 // connection to email API
@@ -114,7 +126,7 @@ module.exports = router => {
 
     router.post('/newLogin', cors(), (req, res) => {
 
-
+    logger.fatal('Hitting Login services.......');
         var phonetosend = req.body.phone;
 
         var otp = "";
@@ -122,11 +134,11 @@ module.exports = router => {
         for (var i = 0; i < 4; i++)
             otp += possible.charAt(Math.floor(Math.random() * possible.length));
         console.log("otp" + otp);
-
+        logger.fatal('OTP getting generate'+ '-->' +otp);
         var otptosend = 'your otp is ' + otp;
 
         if (!phonetosend) {
-
+            logger.error('Invalid Request');
             res
                 .status(400)
                 .json({
@@ -482,7 +494,7 @@ module.exports = router => {
     });
 
     router.post("/user/phoneverification", cors(), (req, res) => {
-
+        logger.fatal('Entering into phone verification');
         const phone = parseInt(req.body.phone);
         var otp = req.body.otp;
         const userinfo = req.body.user;
@@ -504,6 +516,7 @@ module.exports = router => {
                 console.log("minutes2" + minutes2);
                 var diffinminutes = minutes2 - minutes1;
                 if (diffinminutes > 10) {
+                    logger.error('your otp has been expired please request new one');
                     res.send({
                         status: 201,
                         message: 'your otp has been expired please request new one'
@@ -536,6 +549,7 @@ module.exports = router => {
                                             message: result.message
                                         });
                                 } else {
+                                    logger.fatal('sucessfully verified'+'-->'+phone);
                                     res
                                         .status(200)
                                         .json({
@@ -1245,7 +1259,8 @@ module.exports = router => {
     });
 
     router.post('/brandnewupdatevehical', (req, res) => {
-
+        
+        logger.fatal('Entering in Brandnewupdatevehicle');
         const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
        
       
@@ -1255,6 +1270,7 @@ module.exports = router => {
         
     
          if (!updatevehical) {
+        logger.error('Body is Invalid');
         console.log(" invalid body ")
         return res.status(400).json({
             message: 'Invalid Request !'
@@ -1263,7 +1279,7 @@ module.exports = router => {
     }else{
     
         brandnewupdatevehical.brandnewupdatevehical(updatevehical)
-    
+        
         .then(result => {
            
                 res.status(result.status).json({
@@ -1280,7 +1296,7 @@ module.exports = router => {
     });
 
     router.post('/calculatepremium', (req, res) => {
-
+        logger.fatal('Entering Into Calculate Premium......');
         const premiumrequest = req.body.CALCULATEPREMIUMREQUEST;
        
       
@@ -1290,13 +1306,14 @@ module.exports = router => {
         
     
          if (!premiumrequest) {
-        console.log(" invalid body ")
+        logger.error('Body Is Invalid');
+        console.log("invalid body ")
         return res.status(400).json({
             message: 'Invalid Request !'
         });
     
     }else{
-    
+        logger.fatal('Premium Request Sucessfull....');
         calculatepremium.calculatepremium(premiumrequest)
     
         .then(result => {
@@ -1315,7 +1332,7 @@ module.exports = router => {
     });   
 
     router.post('/gproposalrequest', (req, res) => {
-
+        logger.fatal('Hitting gproposal for two wheeler');
         const proposalrequest = req.body.GPROPOSALREQUEST;
        
       
@@ -1325,13 +1342,14 @@ module.exports = router => {
         
     
          if (!proposalrequest) {
+        logger.error('Body is Invalid...');
         console.log(" invalid body ")
         return res.status(400).json({
             message: 'Invalid Request !'
         });
     
     }else{
-    
+
             gproposal.gproposal(proposalrequest)
     
         .then(result => {
@@ -1350,17 +1368,22 @@ module.exports = router => {
     });
 
     router.post('/calculatecarpremium', (req, res) => {
+      
+logger.fatal('Entering in Calculate Premium....');
 
+    
         const calculatepremium = req.body.CALCULATEPREMIUMREQUEST;
        
       
        console.log(calculatepremium,"calculatepremium")
+      // logger.debug("Some debug messages");
       
         
         
     
          if (!calculatepremium) {
-        console.log(" invalid body ")
+        logger.fatal('Body is not valid...');
+        console.log("invalid body")
         return res.status(400).json({
             message: 'Invalid Request !'
         });
@@ -1376,7 +1399,7 @@ module.exports = router => {
                     response: result.Response
                 })
             })
-    
+            
             .catch(err => res.status(err.status).json({
                 message: err.message
             }));
@@ -1385,7 +1408,7 @@ module.exports = router => {
     });  
     
     router.post('/updatevehicalcardetails', (req, res) => {
-
+        logger.fatal('Entering in Update Vehicle car details..');
         const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
        
       
@@ -1395,6 +1418,7 @@ module.exports = router => {
         
     
          if (!updatevehical) {
+        logger.error('Body is Invalid....');
         console.log(" invalid body ")
         return res.status(400).json({
             message: 'Invalid Request !'
@@ -1420,7 +1444,7 @@ module.exports = router => {
     });
     
     router.post('/gproposalcar', (req, res) => {
-
+        logger.fatal('Hitting gproposal car...');
         const gpproposalcar = req.body.GPROPOSALREQUEST;
        
       
@@ -1430,6 +1454,7 @@ module.exports = router => {
         
     
          if (!gpproposalcar) {
+            logger.error('Body is Invalid..');
         console.log(" invalid body ")
         return res.status(400).json({
             message: 'Invalid Request !'
