@@ -59,6 +59,7 @@ const readAllRequest = require('./functions/readAllRequest');
 const updatetransaction = require('./functions/updatetransaction');
 const brandnewupdatevehical = require('./functions/brandnewupdatevehical');
 const calculatepremium = require('./functions/calculatepremium');
+const getPolicyinfo = require('./functions/getPolicyinfo');
 const gproposal = require('./functions/gproposal');
 const calculatecarpremium = require('./functions/calculatecarpremium');
 const updatevehicalcardetails = require('./functions/updatevehicaldetails');
@@ -1479,6 +1480,244 @@ logger.fatal('Entering in Calculate Premium....');
         }
     });
 
+    router.post('/calculatepremiumrollover', (req, res) => {
+        logger.fatal('Entering Into Calculate Premium Rollover......');
+        const premiumrequest = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(premiumrequest,"premiumrequest")
+      
+        
+        
+    
+         if (!premiumrequest) {
+        logger.error('Body Is Invalid');
+        console.log("invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+        logger.fatal('Premium Request Sucessfull....');
+        calculatepremium.calculatepremium(premiumrequest)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });   
+
+    router.post('/brandnewupdatevehicalrollover', (req, res) => {
+        
+        logger.fatal('Entering in Brandnewupdatevehicle Rollover');
+        const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
+       
+      
+       console.log(updatevehical,"brandnewupdatevehical")
+      
+        
+        
+    
+         if (!updatevehical) {
+        logger.error('Body is Invalid');
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+    
+        brandnewupdatevehical.brandnewupdatevehical(updatevehical)
+        
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });
+
+    router.post('/gproposalrequestrollover', (req, res) => {
+        logger.fatal('Hitting gproposal for two wheeler rollover....');
+        const proposalrequest = req.body.GPROPOSALREQUEST;
+       
+      
+       console.log(proposalrequest,"proposalrequest")
+      
+        
+        
+    
+         if (!proposalrequest) {
+        logger.error('Body is Invalid...');
+        console.log(" invalid body ")
+        return res.status(400).json({
+            message: 'Invalid Request !'
+        });
+    
+    }else{
+
+            gproposal.gproposal(proposalrequest)
+    
+        .then(result => {
+           
+                res.status(result.status).json({
+                    message: result.message,
+                    response: result.Response
+                })
+            })
+    
+            .catch(err => res.status(err.status).json({
+                message: err.message
+            }));
+    
+        }
+    });
+
+    router.post('/calculatecarpremiumrollover', (req, res) => {
+      
+        logger.fatal('Entering in Calculate Premium Rollover....');
+        
+            
+                const calculatepremium = req.body.CALCULATEPREMIUMREQUEST;
+               
+              
+               console.log(calculatepremium,"calculatepremium")
+              // logger.debug("Some debug messages");
+              
+                
+                
+            
+                 if (!calculatepremium) {
+                logger.fatal('Body is not valid...');
+                console.log("invalid body")
+                return res.status(400).json({
+                    message: 'Invalid Request !'
+                });
+            
+            }else{
+            
+                    calculatecarpremium.calculatecarpremium(calculatepremium)
+            
+                .then(result => {
+                   
+                        res.status(result.status).json({
+                            message: result.message,
+                            response: result.Response
+                        })
+                    })
+                    
+                    .catch(err => res.status(err.status).json({
+                        message: err.message
+                    }));
+            
+                }
+            });  
+
+            router.post('/updatevehicalcardetailsrollover', (req, res) => {
+                logger.fatal('Entering in Update Vehicle car details Rollover..');
+                const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
+               
+              
+               console.log(updatevehical,"updatevehical")
+              
+                
+                
+            
+                 if (!updatevehical) {
+                logger.error('Body is Invalid....');
+                console.log(" invalid body ")
+                return res.status(400).json({
+                    message: 'Invalid Request !'
+                });
+            
+            }else{
+            
+                    updatevehicalcardetails.updatevehical(updatevehical)
+            
+                .then(result => {
+                   
+                        res.status(result.status).json({
+                            message: result.message,
+                            response: result.Response
+                        })
+                    })
+            
+                    .catch(err => res.status(err.status).json({
+                        message: err.message
+                    }));
+            
+                }
+            });
+
+            router.post('/gproposalcarrollover', (req, res) => {
+                logger.fatal('Hitting gproposal car Rollover...');
+                const gpproposalcar = req.body.GPROPOSALREQUEST;
+               
+              
+               console.log(gpproposalcar,"gpproposalcar")
+              
+                
+                
+            
+                 if (!gpproposalcar) {
+                    logger.error('Body is Invalid..');
+                console.log(" invalid body ")
+                return res.status(400).json({
+                    message: 'Invalid Request !'
+                });
+            
+            }else{
+            
+                    gproposalcar.gpcar(gpproposalcar)
+            
+                .then(result => {
+                   
+                        res.status(result.status).json({
+                            message: result.message,
+                            response: result.Response
+                        })
+                    })
+            
+                    .catch(err => res.status(err.status).json({
+                        message: err.message
+                    }));
+            
+                }
+            });
+
+            router.get("/getPolicyinfo", cors(), (req, res) => {
+            
+                    getPolicyinfo.getPolicyinfo()
+                     .then(function(result) {
+                         console.log("result.query---->", JSON.stringify (result.query));
+                         return res.json({
+                             "status": 200,
+                             "getdata": JSON.stringify (result.query)
+                         });
+                     })
+                     .catch(err => res.status(err.status).json({
+                         message: err.message
+                     }));
+              
+             
+             
+         });
     router.post("/addPolicy", (req, res) => {
         const userid = getUserId(req)
         console.log(userid);
@@ -1550,7 +1789,7 @@ logger.fatal('Entering in Calculate Premium....');
 
     router.get("/readAllrequest", cors(), (req, res) => {
 
-        if (checkToken(req)) {
+        
 
 
 
@@ -1566,15 +1805,10 @@ logger.fatal('Entering in Calculate Premium....');
                 .catch(err => res.status(err.status).json({
                     message: err.message
                 }));
-        } else {
-            res
-                .status(401)
-                .json({
-                    "status": false,
-                    message: 'cant fetch data !'
-                });
+        
+           
         }
-    });
+    )
 
     router.post("/readTransaction", (req, res) => {
 
