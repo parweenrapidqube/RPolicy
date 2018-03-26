@@ -125,7 +125,7 @@ module.exports = router => {
     });
 
 
-    router.post('/newLogin', cors(), (req, res) => {
+    router.post('/newLogin1', cors(), (req, res) => {
 
     logger.fatal('Hitting Login services.......');
         var phonetosend = req.body.phone;
@@ -156,8 +156,8 @@ module.exports = router => {
                 .newlogin(phonetosend, otp)
                 .then(result => {
 
-
-
+                    
+                    console.log(token,"token")
                     nexmo
                         .message
                         .sendSms('919768135452', phonetosend, otptosend, {
@@ -171,6 +171,7 @@ module.exports = router => {
                         .status(result.status)
                         .json({
                             message: result.message,
+                            token:token,
                             phone: phonetosend
                         });
 
@@ -185,10 +186,14 @@ module.exports = router => {
             getnewotp
             .getnewotp(phonetosend, otp)
             .then(result => {
+                const token = jwt.sign(result, config.secret, {
+                    expiresIn: 60000
+                })
                 res
                     .status(result.status)
                     .json({
                         message: result.message,
+                        token:token,
                         otp:otp
                     });
             })
@@ -230,7 +235,9 @@ module.exports = router => {
                 .newlogin(phonetosend, otp)
                 .then(result => {
 
-
+                    const token = jwt.sign(result, config.secret, {
+                        expiresIn: 60000
+                    })
 
                     nexmo
                         .message
@@ -245,6 +252,7 @@ module.exports = router => {
                         .status(result.status)
                         .json({
                             message: result.message,
+                            token:token,
                             otp: result.otp
                         });
 
@@ -1260,7 +1268,12 @@ module.exports = router => {
     });
 
     router.post('/brandnewupdatevehical', (req, res) => {
-        
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Entering in Brandnewupdatevehicle');
         const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
        
@@ -1297,6 +1310,12 @@ module.exports = router => {
     });
 
     router.post('/calculatepremium', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Entering Into Calculate Premium......');
         const premiumrequest = req.body.CALCULATEPREMIUMREQUEST;
        
@@ -1333,6 +1352,12 @@ module.exports = router => {
     });   
 
     router.post('/gproposalrequest', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Hitting gproposal for two wheeler');
         const proposalrequest = req.body.GPROPOSALREQUEST;
        
@@ -1369,6 +1394,12 @@ module.exports = router => {
     });
 
     router.post('/calculatecarpremium', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
       
 logger.fatal('Entering in Calculate Premium....');
 
@@ -1409,6 +1440,12 @@ logger.fatal('Entering in Calculate Premium....');
     });  
     
     router.post('/updatevehicalcardetails', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Entering in Update Vehicle car details..');
         const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
        
@@ -1445,6 +1482,12 @@ logger.fatal('Entering in Calculate Premium....');
     });
     
     router.post('/gproposalcar', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Hitting gproposal car...');
         const gpproposalcar = req.body.GPROPOSALREQUEST;
        
@@ -1455,6 +1498,12 @@ logger.fatal('Entering in Calculate Premium....');
         
     
          if (!gpproposalcar) {
+            if (!checkToken(req)) {
+                console.log("invalid token")
+                return res.status(401).json({
+                    message: "invalid token"
+                })
+            }
             logger.error('Body is Invalid..');
         console.log(" invalid body ")
         return res.status(400).json({
@@ -1481,6 +1530,12 @@ logger.fatal('Entering in Calculate Premium....');
     });
 
     router.post('/calculatepremiumrollover', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Entering Into Calculate Premium Rollover......');
         const premiumrequest = req.body.CALCULATEPREMIUMREQUEST;
        
@@ -1517,6 +1572,12 @@ logger.fatal('Entering in Calculate Premium....');
     });   
 
     router.post('/brandnewupdatevehicalrollover', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         
         logger.fatal('Entering in Brandnewupdatevehicle Rollover');
         const updatevehical = req.body.CALCULATEPREMIUMREQUEST;
@@ -1554,6 +1615,12 @@ logger.fatal('Entering in Calculate Premium....');
     });
 
     router.post('/gproposalrequestrollover', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
         logger.fatal('Hitting gproposal for two wheeler rollover....');
         const proposalrequest = req.body.GPROPOSALREQUEST;
        
@@ -1590,6 +1657,12 @@ logger.fatal('Entering in Calculate Premium....');
     });
 
     router.post('/calculatecarpremiumrollover', (req, res) => {
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
       
         logger.fatal('Entering in Calculate Premium Rollover....');
         
@@ -1666,6 +1739,12 @@ logger.fatal('Entering in Calculate Premium....');
             });
 
             router.post('/gproposalcarrollover', (req, res) => {
+                if (!checkToken(req)) {
+                    console.log("invalid token")
+                    return res.status(401).json({
+                        message: "invalid token"
+                    })
+                }
                 logger.fatal('Hitting gproposal car Rollover...');
                 const gpproposalcar = req.body.GPROPOSALREQUEST;
                
@@ -1790,7 +1869,12 @@ logger.fatal('Entering in Calculate Premium....');
     router.get("/readAllrequest", cors(), (req, res) => {
 
         
-
+        if (!checkToken(req)) {
+            console.log("invalid token")
+            return res.status(401).json({
+                message: "invalid token"
+            })
+        }
 
 
             readAllRequest
