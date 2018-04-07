@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
 
 
     created_at: String,
+    otp: Number,
     userObject: Object
 
 });

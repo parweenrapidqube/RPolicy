@@ -16,6 +16,7 @@
     "body-parser": "^1.15.2",
     "caseless": "^0.12.0",
     "cfenv": "^1.0.4",
+    "claudia-bot-builder": "^3.0.0",
     "cloudant": "^1.7.1",
     "cloudinary": "^1.9.0",
     "collections": "^3.0.0",
@@ -24,10 +25,12 @@
     "cors": "*",
     "date-and-time": "*",
     "express": "^4.14.0",
+    "fabric-client": "^1.1.0",
     "grpc": "^1.4.1",
     "har-validator": "^5.0.3",
     "heroku-client": "^3.0.3",
     "hfc": "^0.6.5",
+    "js2xmlparser": "^3.0.0",
     "jsonwebtoken": "^7.1.9",
     "log4js": "^0.6.33",
     "moment": "^2.19.1",
@@ -41,9 +44,27 @@
     "performance-now": "^2.1.0",
     "promise": "^8.0.1",
     "randomstring": "^1.1.5",
+    "sendotp": "^1.2.8",
     "tunnel-agent": "^0.6.0",
     "twilio": "^3.9.1",
     "underscore": "^1.8.3",
-    "uuid": "^2.0.2"
-  }
+    "utf8": "^3.0.0",
+    "uuid": "^2.0.2",
+    "xml2json": "^0.11.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arun1793/motor-insurancev1.git"
+  },
+  "author": "rahul",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arun1793/motor-insurancev1/issues"
+  },
+  "homepage": "https://github.com/arun1793/motor-insurancev1#readme",
+  "description": "my app",
+  "keywords": [
+    "rahul"
+  ]
 }

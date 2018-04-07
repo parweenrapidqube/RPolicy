@@ -1,0 +1,19 @@
+{
+  "name": "vimbot",
+  "version": "1.0.0",
+  "description": "demo",
+  "main": "addPolicy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "s"
+  },
+  "author": "rahul",
+  "license": "ISC",
+  "dependencies": {
+    "claudia-bot-builder": "^3.0.0"
+  },
+  "devDependencies": {}
+}

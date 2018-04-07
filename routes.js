@@ -1,7 +1,8 @@
 // This is just a sample script. Paste your real code (javascript or HTML) here.
 // here only routing is done and if the ro
 'use strict';
-
+const SendOtp = require('sendotp');
+const sendOtp = new SendOtp('207988A2Bt4ReFksh5ac76ebe');
 var crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 var request = require('request');
@@ -123,7 +124,8 @@ module.exports = router => {
                 }));
         
     });
-
+   
+  
 
     router.post('/newLogin1', cors(), (req, res) => {
 
@@ -132,10 +134,16 @@ module.exports = router => {
 
         var otp = "";
         var possible = "0123456789";
+       
         for (var i = 0; i < 4; i++)
             otp += possible.charAt(Math.floor(Math.random() * possible.length));
         console.log("otp" + otp);
         logger.fatal('OTP getting generate'+ '-->' +otp);
+        sendOtp.send(phonetosend, "RDYPOL", otp, function (error, data, response) {
+            console.log(data);
+           // console.log("response",response)
+            console.log(otp,"otp")
+          });
         var otptosend = 'your otp is ' + otp;
 
         if (!phonetosend) {
@@ -158,15 +166,15 @@ module.exports = router => {
 
                     
                     console.log(token,"token")
-                    nexmo
-                        .message
-                        .sendSms('919768135452', phonetosend, otptosend, {
-                            type: 'unicode'
-                        }, (err, responseData) => {
-                            if (responseData) {
-                                console.log(responseData)
-                            }
-                        });
+                    // nexmo
+                    //     .message
+                    //     .sendSms('919768135452', phonetosend, otptosend, {
+                    //         type: 'unicode'
+                    //     }, (err, responseData) => {
+                    //         if (responseData) {
+                    //             console.log(responseData)
+                    //         }
+                    //     });
                     res
                         .status(result.status)
                         .json({
@@ -265,16 +273,13 @@ module.exports = router => {
         }
     });
 
-    router.post('/login', cors(), (req, res) => {
+    router.post('/otp', cors(), (req, res) => {
 
-        const email = req.body.email;
+        const otp = req.body.otp;
 
-        const password = crypto
-            .createHash('sha256')
-            .update(req.body.password)
-            .digest('base64');
+   
 
-        if (!email) {
+        if (!otp) {
 
             res
                 .status(400)
@@ -283,24 +288,16 @@ module.exports = router => {
                 });
 
         } else {
-            User
-                .getUser(email)
-                .then(result => {
-                    if (result.usr.length == 0) {
-                        res.send({
-                            status: 401,
-                            message: 'user does not exist !'
-                        });
-                    } else {
-                        var status = result.usr[0]._doc.status
-                        if (status.length == 2) {
+            
+               
+                   
+                        //var status = result.usr[0]._doc.status
+                        
                             login
-                                .loginUser(email, password)
-                                .then(result => {
+                                .loginUser(otp)
+                            
 
-                                    const token = jwt.sign(result, config.secret, {
-                                        expiresIn: 60000
-                                    })
+                                    .then(result => {
 
                                     res
                                         .status(result.status)
@@ -314,19 +311,9 @@ module.exports = router => {
                                 .catch(err => res.status(err.status).json({
                                     message: err.message
                                 }));
-                        } else {
-                            res
-                                .status(403)
-                                .json({
-                                    message: "email or phone no has not been verified",
-                                    status: false
-                                });
-                        }
-                    }
-                })
-                .catch(err => res.status(err.status).json({
-                    message: err.message
-                }));
+                      
+                    
+                
 
         }
     });
@@ -3145,7 +3132,7 @@ logger.fatal('Entering in Calculate Premium....');
 
         } else {
 
-            return failed;
+            return false;
         }
     }
 

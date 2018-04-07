@@ -1,27 +1,27 @@
 'use strict';
 
-const user = require('../models/user');
+const user = require('../models/newuserlogin');
 
-exports.loginUser = (email, password) =>
+exports.loginUser = (otp) =>
 
     new Promise((resolve, reject) => {
 
-
+ 
 
         user.find({
-                "email": email
+                "otp": otp
             })
-            .then(users => {
+            .then(newusers => {
 
-                const dbpin = users[0].password;
-                console.log(users[0].password)
-                console.log(dbpin + "   " + users[0].password)
+                const dbotp = newusers[0];
+                console.log(dbotp,"user")
+                //console.log(dbpin + "   " + users[0].password)
 
-                if (String(password) === String(dbpin)) {
+                if (String(otp) === String(dbotp)) {
 
                     resolve({
                         status: 200,
-                        message:"Logged in successfully",
+                        message:"OTP verified",
                         users: users
                     });
 

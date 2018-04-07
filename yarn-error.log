@@ -1,0 +1,101 @@
+Arguments: 
+  /usr/bin/node /usr/bin/yarn install --production
+
+PATH: 
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+
+Yarn version: 
+  1.5.1
+
+Node version: 
+  6.11.4
+
+Platform: 
+  linux x64
+
+npm manifest: 
+  {
+    "name": "node-login",
+    "version": "1.0.0",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js"
+    },
+    "engines": {
+      "node": "6.11.0",
+      "npm": "3.10.10"
+    },
+    "dependencies": {
+      "ava": "^0.22.0",
+      "bcryptjs": "^2.4.3",
+      "bluebird": "^3.3.5",
+      "body-parser": "^1.15.2",
+      "caseless": "^0.12.0",
+      "cfenv": "^1.0.4",
+      "claudia-bot-builder": "^3.0.0",
+      "cloudant": "^1.7.1",
+      "cloudinary": "^1.9.0",
+      "collections": "^3.0.0",
+      "config": "^1.20.1",
+      "connect-multiparty": "^2.0.0",
+      "cors": "*",
+      "date-and-time": "*",
+      "express": "^4.14.0",
+      "fabric-client": "^1.1.0",
+      "grpc": "^1.4.1",
+      "har-validator": "^5.0.3",
+      "heroku-client": "^3.0.3",
+      "hfc": "^0.6.5",
+      "js2xmlparser": "^3.0.0",
+      "jsonwebtoken": "^7.1.9",
+      "log4js": "^0.6.33",
+      "moment": "^2.19.1",
+      "mongoose": "^4.6.0",
+      "morgan": "^1.7.0",
+      "multichain-node": "^2.1.6-version1.0.2",
+      "nexmo": "^2.0.2",
+      "nock": "^9.0.14",
+      "node-datetime": "^2.0.0",
+      "nodemailer": "^0.7.1",
+      "performance-now": "^2.1.0",
+      "promise": "^8.0.1",
+      "randomstring": "^1.1.5",
+      "tunnel-agent": "^0.6.0",
+      "twilio": "^3.9.1",
+      "underscore": "^1.8.3",
+      "utf8": "^3.0.0",
+      "uuid": "^2.0.2",
+      "xml2json": "^0.11.2"
+    },
+    "devDependencies": {},
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/arun1793/motor-insurancev1.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/arun1793/motor-insurancev1/issues"
+    },
+    "homepage": "https://github.com/arun1793/motor-insurancev1#readme",
+    "description": ""
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: Found incompatible module
+      at MessageError.Error (native)
+      at new MessageError (/usr/lib/node_modules/yarn/lib/cli.js:186:110)
+      at Object.checkOne (/usr/lib/node_modules/yarn/lib/cli.js:62444:11)
+      at /usr/lib/node_modules/yarn/lib/cli.js:22773:75
+      at next (native)
+      at step (/usr/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /usr/lib/node_modules/yarn/lib/cli.js:116:14
+      at Promise.F (/usr/lib/node_modules/yarn/lib/cli.js:23451:28)
+      at /usr/lib/node_modules/yarn/lib/cli.js:95:12
+      at /usr/lib/node_modules/yarn/lib/cli.js:22777:27
