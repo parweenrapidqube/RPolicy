@@ -16,7 +16,7 @@ exports.newlogin = (phonetosend,otp) => new Promise((resolve, reject) => {
     });
     newUser
         .save()
-        .then(() => resolve({status: 201, message: 'Please verify your phone no'}))
+        .then(() => resolve({status: 201, message: 'Please verify your phone no', otp:otp}))
         .catch(err => {
 
             if (err.code == 11000) {

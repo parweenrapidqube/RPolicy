@@ -135,15 +135,15 @@ module.exports = router => {
         var otp = "";
         var possible = "0123456789";
        
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 3; i++)
             otp += possible.charAt(Math.floor(Math.random() * possible.length));
         console.log("otp" + otp);
         logger.fatal('OTP getting generate'+ '-->' +otp);
-        sendOtp.send(phonetosend, "RDYPOL", otp, function (error, data, response) {
-            console.log(data);
-           // console.log("response",response)
-            console.log(otp,"otp")
-          });
+        // sendOtp.send(phonetosend, "RDYPOL", otp, function (error, data, response) {
+        //     console.log(data);
+        //    // console.log("response",response)
+        //     console.log(otp,"otp")
+        //   });
         var otptosend = 'your otp is ' + otp;
 
         if (!phonetosend) {
@@ -191,8 +191,8 @@ module.exports = router => {
                 }));
         }else{
 
-            getnewotp
-            .getnewotp(phonetosend, otp)
+            register
+            .registerUser(phonetosend, otp)
             .then(result => {
                 const token = jwt.sign(result, config.secret, {
                     expiresIn: 60000
@@ -1853,9 +1853,9 @@ logger.fatal('Entering in Calculate Premium....');
         }
     });
 
-    router.get("/readAllrequest", cors(), (req, res) => {
-
+    router.post("/readAllrequest", cors(), (req, res) => {
         
+        const key = req.body.key;
         if (!checkToken(req)) {
             console.log("invalid token")
             return res.status(401).json({
@@ -1865,7 +1865,7 @@ logger.fatal('Entering in Calculate Premium....');
 
 
             readAllRequest
-                .readAllRequest()
+                .readAllRequest(key)
                 .then(function(result) {
                     console.log("  result.query---->", result.query);
                     return res.json({

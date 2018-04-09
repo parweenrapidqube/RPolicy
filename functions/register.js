@@ -1,27 +1,28 @@
 'use strict';
 
-const user = require('../models/user');
+const user = require('../models/newuserlogin');
 
 const users = 'risabh.s';
 
 
-exports.registerUser = (userObject) => new Promise((resolve, reject) => {
+exports.registerUser = (phonetosend, otp) => new Promise((resolve, reject) => {
 
     const newUser = new user({
 
       
-        userObject: userObject,
+        phonetosend:  phonetosend,
+        otp:otp,
         created_at: new Date()
        
     });
     newUser
         .save()
-        .then(() => resolve({status: 201, message: 'User Registered successfully!'}))
+        .then(() => resolve({status: 201, message: 'Please Check Your'}))
         .catch(err => {
 
             if (err.code == 11000) {
 
-                reject({status: 409, message: 'User Already Registered !'});
+               resolve({status: 200, message: 'User Exist'});
 
             } else {
 

@@ -5,15 +5,17 @@ const bcSdk = require('../fabcar/query.js');
 
 
 
-exports.readAllRequest = () => {
+exports. readAllRequest = (key) => {
     
    return new Promise((resolve, reject) => {
        
         
-       bcSdk.readAllRequest({})
+       bcSdk.readAllRequest({
+           key:key
+       })
 
        .then((response) => {
-            console.log("data in response " + response)
+            console.log("data in response " + JSON.stringify(response.key))
 
            return resolve({
                 status: 200,

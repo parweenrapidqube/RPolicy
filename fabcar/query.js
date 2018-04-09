@@ -6,12 +6,14 @@ let multichain = require("multichain-node")({
 });
 
 
-function readAllRequest() {
+function readAllRequest(params) {
     
     return new Promise((resolve) => {
         var policyDetails = [];
+        var key = params.key
+        console.log("key------>",'"'+key+'"')
         var response;    
-    multichain.listStreamItems({stream: "policyInfo"}, (err, res) => {
+    multichain.listStreamKeyItems({stream: "policyInfo", key:'"' +key+ '"'}, (err, res) => {
         console.log(res)
         if(err == null){
 
