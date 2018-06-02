@@ -1,5 +1,5 @@
 {
-  "name": "node-login",
+  "name": "rp-backend",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
@@ -52,19 +52,5 @@
     "uuid": "^2.0.2",
     "xml2json": "^0.11.2"
   },
-  "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/arun1793/motor-insurancev1.git"
-  },
-  "author": "rahul",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/arun1793/motor-insurancev1/issues"
-  },
-  "homepage": "https://github.com/arun1793/motor-insurancev1#readme",
-  "description": "my app",
-  "keywords": [
-    "rahul"
-  ]
+  "devDependencies": {}
 }
