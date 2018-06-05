@@ -20,7 +20,8 @@ var multipartMiddleware = multipart();
 const nodemailer = require('nodemailer');
 var express = require('express');
 var router = express.Router();
-const log4js = require('./log4js-node/lib/log4js');
+const log4js = require('log4js');
+//const log4js = require('./log4js-node/lib/log4js');
 log4js.configure({
     appenders: { readypolicy: { type: 'file', filename: 'readypolicy.log' } },
     categories: { default: { appenders: ['readypolicy'], level: 'error' } }

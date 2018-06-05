@@ -32,7 +32,7 @@
     "hfc": "^0.6.5",
     "js2xmlparser": "^3.0.0",
     "jsonwebtoken": "^7.1.9",
-    "log4js": "^0.6.33",
+    "log4js": "^2.8.0",
     "moment": "^2.19.1",
     "mongoose": "^4.6.0",
     "morgan": "^1.7.0",

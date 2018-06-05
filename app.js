@@ -11,15 +11,13 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-// const loggerpac = require('morgan');
+
 const router = express.Router();
 var cors = require('cors');
 
-//var logger;
-var Promise = require('bluebird');
-//var log4js = require('log4js');
+var log4js = require('log4js');
 var config = require('config');
-const log4js = require('./log4js-node/lib/log4js');
+//const log4js = require('./log4js-node/lib/log4js');
 log4js.configure({
     appenders: { readypolicy: { type: 'file', filename: 'readypolicy.log' } },
     categories: { default: { appenders: ['readypolicy'], level: 'error' } }
