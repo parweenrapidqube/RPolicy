@@ -27,8 +27,8 @@ log4js.configure({
   const logger = log4js.getLogger('readypolicy');
 
 
-//const port = process.env.PORT || 8082;
-const port = process.env.PORT || 9595;
+const port = process.env.PORT || 8082;
+//const port = process.env.PORT || 9595;
 
 app.use(bodyParser.urlencoded({
     extended: true
