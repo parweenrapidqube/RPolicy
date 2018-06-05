@@ -11,7 +11,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const loggerpac = require('morgan');
+// const loggerpac = require('morgan');
 const router = express.Router();
 var cors = require('cors');
 
@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
-app.use(loggerpac('dev'));
+//app.use(loggerpac('dev'));
 app.use(cors());
 require('./routes')(router);
 app.use('/', router);
