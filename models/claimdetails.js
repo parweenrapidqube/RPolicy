@@ -21,6 +21,9 @@ mongoose.connect('mongodb://rpqb:rpqb123@ds131583.mlab.com:31583/digitalid', {
     useMongoClient: true
 });
 
+// mongoose.connect('mongodb://localhost:12345/digitalId', {
+//     useMongoClient: true
+// });
 
 
 module.exports = mongoose.model('claimdetails', claimSchema);

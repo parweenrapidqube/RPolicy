@@ -1,8 +1,15 @@
+// let multichain = require("multichain-node")({
+//     port: 9252,
+//     host: '127.0.0.1',
+//     user: "multichainrpc",
+//     pass: "Axh1jhvBukXTXLAr8aVJzG829JFUZDrvptvqkoYkWyZd"        
+// });
+
 let multichain = require("multichain-node")({
-    port: 9252,
+    port: 5792,
     host: '127.0.0.1',
     user: "multichainrpc",
-    pass: "Axh1jhvBukXTXLAr8aVJzG829JFUZDrvptvqkoYkWyZd"        
+    pass: "Ae8zZC3Rgo5oNtLpzaE4j4cKh3rUDj1ZVBccNW5URAZP"        
 });
 
 

@@ -3,6 +3,7 @@
 'use strict';
 const SendOtp = require('sendotp');
 const sendOtp = new SendOtp('207988A2Bt4ReFksh5ac76ebe');
+//const sendOtp = new SendOtp('219078ARI2isYr5b177f20');created by Neelima
 var crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 var request = require('request');
@@ -75,6 +76,8 @@ const negotiateClaimFind = require('./functions/negotiateClaimFind');
 const approveClaim = require('./functions/approveClaim');
 const settleClaim = require('./functions/settleClaim');
 const fetchClaimlist = require('./functions/fetchClaimlist');
+const paymentDetails = require('./functions/paymentDetails');
+const paymentDetailsByQuoteId =require('./functions/paymentDetailsByQuoteId');
 
 const nexmo = new Nexmo({
     apiKey: 'c7ae10d1',
@@ -3204,4 +3207,55 @@ logger.fatal('Entering in Calculate Premium....');
 
         return result;
     }
+    /* royal sundaram payment gateway return response and redirect to UI*/ 
+    router.post("/rsReturnURL", (req, res) =>{
+        console.log("payment gateway response: ", req.body);
+        const response = req.body;
+
+            paymentDetails
+                .savePaymentDetails(response)
+                .then(result => {
+                    
+                    res.redirect('http://localhost:8081/index.html'); //url to UI
+
+                    // res
+                    //     .status(result.status)
+                    //     .json({
+                    //         message: result.message
+                        
+                    //     });
+
+                })
+                .catch(err => res.status(err.status).json({
+                    message: err.message
+                }).json({
+                    status: err.status
+                }));
+       
+    })
+
+
+    router.post("/getPaymentDetailsByquoteId", (req, res) =>{
+        console.log("inside post ")
+        const quoteId = req.body.quoteId;
+        console.log("q got :",quoteId)
+            paymentDetailsByQuoteId
+                .getPaymentDetailsById(quoteId)
+                .then(result => {
+                    console.log("result in route :",result.details)
+                    res
+                        .status(result.status)
+                        .json({
+                            response: result.details
+                        });
+
+                })
+                .catch(err => res.status(err.status).json({
+                    message: err.message
+                }).json({
+                    status: err.status
+                }));
+       
+    })
+
 }
